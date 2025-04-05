@@ -1,0 +1,31 @@
+package a3;
+
+import tage.input.action.AbstractInputAction;
+import net.java.games.input.Event;
+import org.joml.*;
+
+import tage.*;
+
+public class ZoomAction extends AbstractInputAction {
+    private MyGame game;
+    private Camera cam;
+    private GameObject av;
+    private float speed = 1.0f;
+
+    public ZoomAction(MyGame g) {
+        game = g;
+    }
+
+    @Override
+    public void performAction(float time, Event e) {
+        cam = (game.getEngine().getRenderSystem().getViewport("RIGHT").getCamera()); // change to correct viewport if needed
+        float keyValue = e.getValue();
+
+            if (keyValue > -.2 && keyValue < .2)
+                return; // deadzone
+
+            float direction = (e.getComponent().getIdentifier().getName() == "U") ? 1.0f : -1.0f;
+
+            cam.zoom(direction * speed * time);
+    }
+}
