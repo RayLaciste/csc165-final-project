@@ -33,6 +33,13 @@ public class MyGame extends VariableFrameRateGame {
 			x, y, z,
 			ground, elec1, elec2, elec3;
 
+
+	// Robot
+	private GameObject robot;
+	private ObjShape robS;
+	private TextureImage robottx;
+	private float robotHeightAdjust = 0.5f;
+
 	private ObjShape avatarS, cubS, torS, spherS, linxS, linyS, linzS, planeS, terrS;
 
 	private TextureImage avatartx, metal, water, boom, electronic, hills, grass,
@@ -132,7 +139,11 @@ public class MyGame extends VariableFrameRateGame {
 		torS = new Torus();
 		spherS = new Sphere();
 		planeS = new Plane();
+
 		terrS = new TerrainPlane(1000);
+
+		// Robot
+		robS = new ImportedModel("robot.obj");
 
 		linxS = new Line(new Vector3f(0f, 0f, 0f), new Vector3f(3f, 0f, 0f));
 		linyS = new Line(new Vector3f(0f, 0f, 0f), new Vector3f(0f, 3f, 0f));
@@ -143,6 +154,9 @@ public class MyGame extends VariableFrameRateGame {
 	public void loadTextures() {
 		// avatar
 		avatartx = new TextureImage("Dolphin_HighPolyUV.png");
+
+		// robot
+		robottx = new TextureImage("robot.png");
 
 		// terrain
 		hills = new TextureImage("hills.jpg");
@@ -221,13 +235,27 @@ public class MyGame extends VariableFrameRateGame {
 		avatar.setLocalRotation(initialRotation);
 		avatar.setLocalScale(initialScale);
 
+		// Robot
+		robot = new GameObject(GameObject.root(), robS, robottx);
+		initialTranslation = (new Matrix4f()).translation(0, robotHeightAdjust, 0);
+		robot.setLocalTranslation(initialTranslation);
+		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(180.0f));
+		robot.setLocalRotation(initialRotation);
+		initialScale = (new Matrix4f()).scaling(0.2f, 0.2f, 0.2f);
+		robot.setLocalScale(initialScale);
+		robot.getRenderStates().setModelOrientationCorrection(
+				(new Matrix4f()).rotationY((float)java.lang.Math.toRadians(90.0f)));
+
+//		robot.getRenderStates().hasLighting(true);
+//		robot.getRenderStates().isEnvironmentMapped(true);
+
+		// Terrain
 		terr = new GameObject(GameObject.root(), terrS, grass);
 		initialTranslation = (new Matrix4f()).translation(0f, 0f, 0f);
 		terr.setLocalTranslation(initialTranslation);
 		initialScale = (new Matrix4f()).scaling(20.0f, 1.0f, 20.0f);
 		terr.setLocalScale(initialScale);
 		terr.setHeightMap(hills);
-
 		terr.getRenderStates().setTiling(1);
 		terr.getRenderStates().setTileFactor(10);
 
@@ -254,8 +282,9 @@ public class MyGame extends VariableFrameRateGame {
 
 		// Ground Plane
 		ground = new GameObject(GameObject.root(), planeS, water);
-		initialTranslation = (new Matrix4f()).translation(0, -0.1f, 0);
+		initialTranslation = (new Matrix4f()).translation(0, -1.0f, 0);
 		initialScale = (new Matrix4f()).scaling(10);
+		ground.setLocalTranslation(initialTranslation);
 		ground.setLocalScale(initialScale);
 		ground.getRenderStates().setTiling(1);
 
@@ -531,6 +560,11 @@ public class MyGame extends VariableFrameRateGame {
 		Vector3f loc = avatar.getWorldLocation();
 		float height = terr.getHeight(loc.x(), loc.z());
 		avatar.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
+
+		Vector3f loc2 = robot.getWorldLocation();
+		float height2 = terr.getHeight(loc2.x(), loc2.z());
+		robot.setLocalLocation(
+				new Vector3f(loc2.x(), height2 + robotHeightAdjust, loc2.z()));
 
 		// // Check collisions
 		checkCollision(avatar, sat1, far1, close1, defuse1);
